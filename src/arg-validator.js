@@ -80,5 +80,18 @@ module.exports = {
     checkArray: function(arg) {
         const ok = arg instanceof Array;
         return new ArgCheckResult(!ok);
+    },
+
+    /**
+     * Checks if the specified argument is a valid boolean.
+     *
+     * @param {*} arg The argument to check
+     *
+     * @return {ArgCheckResult} An object that encapsulates the results of the
+     *         argument validation check, and provides
+     */
+    checkBoolean: function(arg) {
+        const ok = typeof arg === 'boolean';
+        return new ArgCheckResult(!ok);
     }
 };

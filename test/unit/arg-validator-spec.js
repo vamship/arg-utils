@@ -24,6 +24,7 @@ describe('argValidator', function() {
         expect(_argValidator.checkNumber).to.be.a('function');
         expect(_argValidator.checkObject).to.be.a('function');
         expect(_argValidator.checkArray).to.be.a('function');
+        expect(_argValidator.checkBoolean).to.be.a('function');
     });
 
     describe('checkString()', () => {
@@ -247,6 +248,32 @@ describe('argValidator', function() {
 
             inputs.forEach((arg) => {
                 const ret = _argValidator.checkArray(arg);
+                expect(ret.hasErrors).to.be.false;
+            });
+        });
+    });
+
+    describe('checkBoolean()', () => {
+        it('should return an ArgCheckResult object when invoked', () => {
+            const ret = _argValidator.checkBoolean([]);
+
+            expect(ret).to.be.an.instanceof(ArgCheckResult);
+        });
+
+        it('should fail argument validation if the input is not a valid boolean', () => {
+            const inputs = _testValues.allButBoolean();
+
+            inputs.forEach((arg) => {
+                const ret = _argValidator.checkBoolean(arg);
+                expect(ret.hasErrors).to.be.true;
+            });
+        });
+
+        it('should pass argument validation if the input is a valid boolean', () => {
+            const inputs = [true, false];
+
+            inputs.forEach((arg) => {
+                const ret = _argValidator.checkBoolean(arg);
                 expect(ret.hasErrors).to.be.false;
             });
         });
