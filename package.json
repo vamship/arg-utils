@@ -10,7 +10,6 @@
   "author": "Vamshi K Ponnapalli <vamshi.ponnapalli@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@vamship/error-types": "^1.0.0",
     "@vamship/grunt-utils": "^1.0.0",
     "@vamship/test-utils": "^1.0.0",
     "chai": "^4.1.2",
@@ -33,6 +32,7 @@
     "time-grunt": "^1.4.0"
   },
   "dependencies": {
+    "@vamship/error-types": "^1.0.0",
     "ajv": "^6.1.1",
     "pino": "^4.10.4"
   },
