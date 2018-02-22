@@ -93,5 +93,18 @@ module.exports = {
     checkBoolean: function(arg) {
         const ok = typeof arg === 'boolean';
         return new ArgCheckResult(!ok);
+    },
+
+    /**
+     * Checks if the specified argument is a valid function.
+     *
+     * @param {*} arg The argument to check
+     *
+     * @return {ArgCheckResult} An object that encapsulates the results of the
+     *         argument validation check, and provides
+     */
+    checkFunction: function(arg) {
+        const ok = typeof arg === 'function';
+        return new ArgCheckResult(!ok);
     }
 };
