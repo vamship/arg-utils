@@ -26,6 +26,7 @@ describe('argValidator', function() {
         expect(_argValidator.checkArray).to.be.a('function');
         expect(_argValidator.checkBoolean).to.be.a('function');
         expect(_argValidator.checkFunction).to.be.a('function');
+        expect(_argValidator.checkInstance).to.be.a('function');
     });
 
     describe('checkString()', () => {
@@ -301,6 +302,43 @@ describe('argValidator', function() {
 
             inputs.forEach((arg) => {
                 const ret = _argValidator.checkFunction(arg);
+                expect(ret.hasErrors).to.be.false;
+            });
+        });
+    });
+
+    describe('checkInstance()', () => {
+        it('should return an ArgCheckResult object when invoked', () => {
+            const ret = _argValidator.checkInstance({}, Array);
+
+            expect(ret).to.be.an.instanceof(ArgCheckResult);
+        });
+
+        it('should fail argument validation if the input is not a valid instance of the type', () => {
+            const inputs = _testValues.allButObject({});
+            function Type() {}
+
+            inputs.forEach((arg) => {
+                const ret = _argValidator.checkInstance(arg, Type);
+                expect(ret.hasErrors).to.be.true;
+            });
+        });
+
+        it('should fail argument validation if the type argument is invalid', () => {
+            const inputs = _testValues.allButFunction({});
+
+            inputs.forEach((Type) => {
+                const ret = _argValidator.checkInstance({}, Type);
+                expect(ret.hasErrors).to.be.true;
+            });
+        });
+
+        it('should pass argument validation if the arg is a valid instance of the type', () => {
+            function Type() {}
+            const inputs = [new Type(), new Type()];
+
+            inputs.forEach((arg) => {
+                const ret = _argValidator.checkInstance(arg, Type);
                 expect(ret.hasErrors).to.be.false;
             });
         });

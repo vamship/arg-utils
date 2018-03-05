@@ -106,5 +106,19 @@ module.exports = {
     checkFunction: function(arg) {
         const ok = typeof arg === 'function';
         return new ArgCheckResult(!ok);
+    },
+
+    /**
+     * Checks if the specified argument is an instance of a particular type.
+     *
+     * @param {*} arg The argument to check
+     * @param {Function} type The expected type of the argument
+     *
+     * @return {ArgCheckResult} An object that encapsulates the results of the
+     *         argument validation check, and provides
+     */
+    checkInstance: function(arg, type) {
+        const ok = typeof type === 'function' && arg instanceof type;
+        return new ArgCheckResult(!ok);
     }
 };
