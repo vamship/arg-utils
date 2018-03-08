@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>arg-validator.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-argValidator.html">argValidator</a><ul class='methods'><li data-type='method'><a href="module-argValidator.html#.checkArray">checkArray</a></li><li data-type='method'><a href="module-argValidator.html#.checkBoolean">checkBoolean</a></li><li data-type='method'><a href="module-argValidator.html#.checkEnum">checkEnum</a></li><li data-type='method'><a href="module-argValidator.html#.checkFunction">checkFunction</a></li><li data-type='method'><a href="module-argValidator.html#.checkInstance">checkInstance</a></li><li data-type='method'><a href="module-argValidator.html#.checkNumber">checkNumber</a></li><li data-type='method'><a href="module-argValidator.html#.checkObject">checkObject</a></li><li data-type='method'><a href="module-argValidator.html#.checkString">checkString</a></li></ul></li><li><a href="module-schemaHelper.html">schemaHelper</a><ul class='methods'><li data-type='method'><a href="module-schemaHelper.html#.createSchemaChecker">createSchemaChecker</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">arg-validator.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
+
+const { ArgError } = require('@vamship/error-types').args;
+
+/**
+ * Reusable method that handles the result of a validation check, and performs
+ * the necessary actions.
+ *
+ * @private
+ * @param {Boolean} isValid Determines if the validation check was successful.
+ * @param {String|Error} [error] The error to throw if the validation failed.
+ *
+ * @return {Boolean} True if the validation was successful, false otherwise.
+ * @throws {ArgError|Error} Thrown if validation fails, and the input error is
+ *         not undefined.
+ */
+function _handleResult(isValid, error) {
+    if (!isValid) {
+        if (error instanceof Error) {
+            throw error;
+        } else if (typeof error === 'string') {
+            throw new ArgError(error);
+        }
+        return false;
+    }
+    return true;
+}
+
+/**
+ * @module argValidator
+ */
+module.exports = {
+    /**
+     * The error to be thrown if validation fails. If the value is a string, an
+     * ArgError will be thrown with the string as the message. If the value is
+     * an Error, the error object will be thrown.
+     *
+     * @typedef {String|Error} module:argValidator.Error
+     */
+    /**
+     * Checks if the specified argument is a valid string.
+     *
+     * @param {*} arg The argument to check
+     * @param {Number} [minLength=1] The expected minimum length of the string.
+     * @param {module:argValidator.Error} [error=undefined] The error to be
+     *        thrown if validation fails.
+     *
+     * @return {Boolean} True if the string is valid, false otherwise.
+     * @throws {ArgError|Error} Thrown if validation fails, and the input error
+     *         is not undefined.
+     */
+    checkString: function(arg, minLength, error) {
+        if (typeof minLength !== 'number' || minLength &lt; 0) {
+            minLength = 1;
+        }
+        const isOk = typeof arg === 'string' &amp;&amp; arg.length >= minLength;
+        return _handleResult(isOk, error);
+    },
+
+    /**
+     * Checks if the specified argument is present amongst the list of possible
+     * values.
+     *
+     * @param {*} arg The argument to check
+     * @param {Array} values A list of allowed values that the argument must
+     *        belong to.
+     * @param {module:argValidator.Error} [error=undefined] The error to be
+     *        thrown if validation fails.
+     *
+     * @return {Boolean} True if the string is valid, false otherwise.
+     * @throws {ArgError|Error} Thrown if validation fails, and the input error
+     *         is not undefined.
+     */
+    checkEnum: function(arg, values, error) {
+        const isOk = values instanceof Array &amp;&amp; values.indexOf(arg) >= 0;
+        return _handleResult(isOk, error);
+    },
+
+    /**
+     * Checks if the specified argument is a valid number.
+     *
+     * @param {*} arg The argument to check
+     * @param {Number} [min=1] The expected minimum value of the number.
+     * @param {module:argValidator.Error} [error=undefined] The error to be
+     *        thrown if validation fails.
+     *
+     * @return {Boolean} True if the string is valid, false otherwise.
+     * @throws {ArgError|Error} Thrown if validation fails, and the input error
+     *         is not undefined.
+     */
+    checkNumber: function(arg, min, error) {
+        if (typeof min !== 'number') {
+            min = 1;
+        }
+        const isOk = typeof arg === 'number' &amp;&amp; arg >= min;
+        return _handleResult(isOk, error);
+    },
+
+    /**
+     * Checks if the specified argument is a valid object.
+     *
+     * @param {*} arg The argument to check
+     * @param {module:argValidator.Error} [error=undefined] The error to be
+     *        thrown if validation fails.
+     *
+     * @return {Boolean} True if the string is valid, false otherwise.
+     * @throws {ArgError|Error} Thrown if validation fails, and the input error
+     *         is not undefined.
+     */
+    checkObject: function(arg, error) {
+        const isOk = arg &amp;&amp; !(arg instanceof Array) &amp;&amp; typeof arg === 'object';
+        return _handleResult(isOk, error);
+    },
+
+    /**
+     * Checks if the specified argument is a valid array.
+     *
+     * @param {*} arg The argument to check
+     * @param {module:argValidator.Error} [error=undefined] The error to be
+     *        thrown if validation fails.
+     *
+     * @return {Boolean} True if the string is valid, false otherwise.
+     * @throws {ArgError|Error} Thrown if validation fails, and the input error
+     *         is not undefined.
+     */
+    checkArray: function(arg, error) {
+        const isOk = arg instanceof Array;
+        return _handleResult(isOk, error);
+    },
+
+    /**
+     * Checks if the specified argument is a valid boolean.
+     *
+     * @param {*} arg The argument to check
+     * @param {module:argValidator.Error} [error=undefined] The error to be
+     *        thrown if validation fails.
+     *
+     * @return {Boolean} True if the string is valid, false otherwise.
+     * @throws {ArgError|Error} Thrown if validation fails, and the input error
+     *         is not undefined.
+     */
+    checkBoolean: function(arg, error) {
+        const isOk = typeof arg === 'boolean';
+        return _handleResult(isOk, error);
+    },
+
+    /**
+     * Checks if the specified argument is a valid function.
+     *
+     * @param {*} arg The argument to check
+     * @param {module:argValidator.Error} [error=undefined] The error to be
+     *        thrown if validation fails.
+     *
+     * @return {Boolean} True if the string is valid, false otherwise.
+     * @throws {ArgError|Error} Thrown if validation fails, and the input error
+     *         is not undefined.
+     */
+    checkFunction: function(arg, error) {
+        const isOk = typeof arg === 'function';
+        return _handleResult(isOk, error);
+    },
+
+    /**
+     * Checks if the specified argument is an instance of a particular type.
+     *
+     * @param {*} arg The argument to check
+     * @param {Function} type The expected type of the argument
+     * @param {module:argValidator.Error} [error=undefined] The error to be
+     *        thrown if validation fails.
+     *
+     * @return {Boolean} True if the string is valid, false otherwise.
+     * @throws {ArgError|Error} Thrown if validation fails, and the input error
+     *         is not undefined.
+     */
+    checkInstance: function(arg, type, error) {
+        const isOk = typeof type === 'function' &amp;&amp; arg instanceof type;
+        return _handleResult(isOk, error);
+    }
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Mar 08 2018 10:41:01 GMT-0500 (EST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
