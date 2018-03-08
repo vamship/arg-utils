@@ -36,8 +36,37 @@ npm install @vamship/arg-utils
 
 This libary exports two modules:
 
-* **schemaHelper**: Generates a schema validator function based on a schema object. This function can then be used to validate inputs against this schema.
-* **argValidator**: Provides basic argument validation functionality for function input validation.
+* **schemaHelper**: Generates a schema validator function based on a schema
+  object. This function can then be used to validate inputs against this
+  schema.
+* **argValidator**: Provides basic argument validation functionality for
+  function input validation.
+
+## Release Notes
+
+### V2.0.0
+
+This version introduces breaking changes in order to find a better balance
+between "syntactic niceness" and performance. V1.x allowed error checks and
+default settings to be applied by allowing chained function calls, for example:
+
+```
+    _argValidator.checkString(someArg).throw('some error');
+```
+
+While one could argue that this made the code more readable, quick performance
+tests showed that these checks were multiple orders of magnitude slower than
+simple error checks using `if-then-else` statements. The fact that they are
+slower was expected, but how much slower they really were was a surprise.
+
+Version 2.0.0 changes the validator signatures to accept the error message as
+a part of the check function, and throws immediately, like this:
+
+```
+    _argValidator.checkString(someArg, 1, 'some error'); // Throws an error.
+
+    _argValidator.checkString(someArg, 1); // Does not throw, returns false.
+```
 
 ## Examples
 
@@ -48,12 +77,11 @@ const _argValidator = require('@vamship/arg-validator').argValidator;
 
 ...
 
-function sayHello(name) {
-    _argValidator.checkString(name)
-        .throw('Invalid name argument (arg #1)');
-
-    _argValidator.checkString(lang)
-        .do(() => lang = 'english');
+function sayHello(name, lang) {
+    _argValidator.checkString(name, 1, 'Invalid name (arg #1)');
+    if(!_argValidator.checkString(lang, 1)){
+        lang = 'english';
+    }
 }
 ```
 
@@ -67,6 +95,15 @@ const checkSchema = _schemaHelper.createSchemaChecker(schema);
 ...
 
 function processInput(input) {
-    checkSchema(input).throw();
+    checkSchema(input, true) // Throws a schema error
+}
+
+...
+
+function processInput(input) {
+    if(!checkSchema(input)) { // Does not throw an error, but returns false
+
+        // Perform some actions on schema validation failure
+    }
 }
 ```
