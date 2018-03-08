@@ -70,7 +70,7 @@ describe('argValidator', function() {
         }
 
         function _getErrorInputs(error) {
-            return _testValues.allButString().map((item) => [item, 1, error]);
+            return _testValues.allButString('').map((item) => [item, 1, error]);
         }
 
         function _getValidInputs(count) {
