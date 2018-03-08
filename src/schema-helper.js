@@ -2,7 +2,6 @@
 
 const _ajv = require('ajv');
 const { SchemaError, ArgError } = require('@vamship/error-types').args;
-const ArgCheckResult = require('./arg-check-result');
 
 /**
  * Utility library for performing JSON schema validations.
@@ -16,8 +15,12 @@ module.exports = {
      *
      * @typedef {Function} SchemaChecker
      * @param {Object} target The object to perform schema validation against.
-     * @return {ArgCheckResult} An object that encapsulates the result of the
-     *         validation operation.
+     * @param {Boolean} [throwError=false] If set to true, will throw an error
+     *        on schema validation failures.
+     *
+     * @return {Boolean} True if the validation was successful, false otherwise.
+     * @throws {ArgError|Error} Thrown if validation fails, and if <b>throw</b>
+     *         is set to true.
      */
     /**
      * Creates and returns a function that can be used to perform schema
@@ -41,16 +44,18 @@ module.exports = {
             errorMessage = 'Schema validation failed';
         }
         const validator = _ajv().compile(schema);
-        return (target) => {
-            let defaultError = null;
+        return (target, throwError) => {
             if (!validator(target)) {
-                const { dataPath, message } = validator.errors[0];
-                defaultError = new SchemaError(
-                    `${errorMessage}. Details: [${dataPath ||
-                        '<root>'}: ${message}]`
-                );
+                if (throwError) {
+                    const { dataPath, message } = validator.errors[0];
+                    throw new SchemaError(
+                        `${errorMessage}. Details: [${dataPath ||
+                            '<root>'}: ${message}]`
+                    );
+                }
+                return false;
             }
-            return new ArgCheckResult(!!defaultError, defaultError);
+            return true;
         };
     }
 };

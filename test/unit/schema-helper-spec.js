@@ -12,7 +12,6 @@ const _testValues = _testUtils.testValues;
 const ObjectMock = _testUtils.ObjectMock;
 
 const { ArgError, SchemaError } = require('@vamship/error-types').args;
-const ArgCheckResult = require('../../src/arg-check-result');
 
 let _schemaHelper = null;
 
@@ -90,23 +89,15 @@ describe('schemaHelper', function() {
                 expect(_ajvMock._validator).to.have.been.calledWith(target);
             });
 
-            it('should return an ArgCheckResult after validation is completed', () => {
+            it('should return true if schema validation is successful', () => {
                 const validator = _createValidator();
 
                 _ajvMock._isValid = true;
                 const ret = validator({});
-                expect(ret).to.be.an.instanceof(ArgCheckResult);
+                expect(ret).to.be.true;
             });
 
-            it('should return an ArgCheckResult with hasErrors=false if schema validation succeeds', () => {
-                const validator = _createValidator();
-
-                _ajvMock._isValid = true;
-                const ret = validator({});
-                expect(ret.hasErrors).to.be.false;
-            });
-
-            it('should return an ArgCheckResult with hasErrors=true if schema validation fails', () => {
+            it('should return false if schema validation fails', () => {
                 const validator = _createValidator();
                 const schemaErr = {
                     dataPath: 'foo',
@@ -116,27 +107,33 @@ describe('schemaHelper', function() {
                 _ajvMock._isValid = false;
                 _ajvMock._validator.errors = [schemaErr];
                 const ret = validator({});
-                expect(ret.hasErrors).to.be.true;
+                expect(ret).to.be.false;
             });
 
-            it('should throw the correct schema error when throw() is invoked on the result', () => {
+            it('should throw an error if validation fails, and throwError=true', () => {
+                const validator = _createValidator();
                 const schemaErr = {
                     dataPath: 'foo',
                     message: 'bar'
                 };
-                const errMessage = `[SchemaError] Schema validation failed. Details: [${
+                const message = `[SchemaError] Schema validation failed. Details: [${
                     schemaErr.dataPath
                 }: ${schemaErr.message}]`;
 
                 const wrapper = () => {
-                    const validator = _createValidator();
-
                     _ajvMock._isValid = false;
                     _ajvMock._validator.errors = [schemaErr];
-                    validator({}).throw();
+                    return validator({}, true);
                 };
+                expect(wrapper).to.throw(SchemaError, message);
+            });
 
-                expect(wrapper).to.throw(SchemaError, errMessage);
+            it('should return true if schema validation is successful and throwError=true', () => {
+                const validator = _createValidator();
+
+                _ajvMock._isValid = true;
+                const ret = validator({}, true);
+                expect(ret).to.be.true;
             });
 
             it('should default the schema error dataPath to "root" if one was not returned', () => {
@@ -151,7 +148,7 @@ describe('schemaHelper', function() {
                     const validator = _createValidator();
                     _ajvMock._isValid = false;
                     _ajvMock._validator.errors = [schemaErr];
-                    validator({}).throw();
+                    validator({}, true);
                 };
                 expect(wrapper).to.throw(SchemaError, errMessage);
             });
@@ -170,7 +167,7 @@ describe('schemaHelper', function() {
                     const validator = _createValidator(customMessage);
                     _ajvMock._isValid = false;
                     _ajvMock._validator.errors = [schemaErr];
-                    validator({}).throw();
+                    validator({}, true);
                 };
 
                 expect(wrapper).to.throw(SchemaError, errMessage);

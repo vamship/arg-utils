@@ -9,7 +9,7 @@ const _rewire = require('rewire');
 
 const _testUtils = require('@vamship/test-utils');
 const _testValues = _testUtils.testValues;
-const ArgCheckResult = require('../../src/arg-check-result');
+const { ArgError } = require('@vamship/error-types').args;
 
 let _argValidator = null;
 
@@ -29,318 +29,515 @@ describe('argValidator', function() {
         expect(_argValidator.checkInstance).to.be.a('function');
     });
 
+    class Tester {
+        constructor(method, type, message) {
+            this.method = method;
+        }
+
+        checkError(inputs, type, message) {
+            type = type || ArgError;
+            message = message || new ArgError().message;
+            inputs.forEach((arg) => {
+                const wrapper = () => {
+                    return this.method(...arg);
+                };
+                expect(wrapper).to.throw(type, message);
+            });
+        }
+
+        checkTrue(inputs) {
+            inputs.forEach((arg) => {
+                expect(this.method(...arg)).to.be.true;
+            });
+        }
+
+        checkFalse(inputs) {
+            inputs.forEach((arg) => {
+                expect(this.method(...arg)).to.be.false;
+            });
+        }
+    }
+
+    class CustomError extends Error {
+        constructor(message) {
+            super(message);
+        }
+    }
+
     describe('checkString()', () => {
-        it('should return an ArgCheckResult object when invoked', () => {
-            const ret = _argValidator.checkString('foo');
+        function _createTester() {
+            return new Tester(_argValidator.checkString);
+        }
 
-            expect(ret).to.be.an.instanceof(ArgCheckResult);
+        function _getErrorInputs(error) {
+            return _testValues.allButString().map((item) => [item, 1, error]);
+        }
+
+        function _getValidInputs(count) {
+            count = count || 10;
+            const inputs = [];
+            for (let index = 0; index < count; index++) {
+                inputs.push(_testValues.getString(`value_${index}`));
+            }
+            return inputs.map((item) => [item, 1]);
+        }
+
+        it('should return false if the input is not a valid string', () => {
+            const inputs = _getErrorInputs();
+            const tester = _createTester();
+
+            tester.checkFalse(inputs);
         });
 
-        it('should fail argument validation if the input is not a valid string', () => {
-            const inputs = _testValues.allButString();
+        it('should return false if the input is a valid string, but is too short', () => {
+            const inputs = [['foo', 10], ['', 1]];
+            const tester = _createTester();
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkString(arg);
-                expect(ret.hasErrors).to.be.true;
-            });
+            tester.checkFalse(inputs);
         });
 
-        it('should pass argument validation if the input is a valid string', () => {
-            const inputs = ['foo', 'bar', 'baz'];
+        it('should default the min length to 1 if omitted', () => {
+            const errorInputs = [['']];
+            const okInputs = [[_testValues.getString('ok')]];
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkString(arg);
-                expect(ret.hasErrors).to.be.false;
-            });
+            const tester = _createTester();
+            tester.checkFalse(errorInputs);
+            tester.checkTrue(okInputs);
         });
 
-        it('should validate args against minmum length requirements', () => {
-            const inputs = [
-                {
-                    arg: 'foo',
-                    minLength: 4,
-                    hasErrors: true
-                },
-                {
-                    arg: 'foo',
-                    minLength: 2,
-                    hasErrors: false
-                },
-                {
-                    arg: '',
-                    minLength: 1,
-                    hasErrors: true
-                },
-                {
-                    arg: '',
-                    minLength: 0,
-                    hasErrors: false
-                }
-            ];
+        it('should throw the error if the error is a custom error type', () => {
+            const message = _testValues.getString('message');
+            const error = new CustomError(message);
+            const inputs = _getErrorInputs(error);
+            const tester = _createTester();
 
-            inputs.forEach((input) => {
-                const { arg, minLength, hasErrors } = input;
-                const ret = _argValidator.checkString(arg, minLength);
-
-                expect(ret.hasErrors).to.equal(hasErrors);
-            });
+            tester.checkError(inputs, CustomError, message);
         });
 
-        it('should default the minLength parameter to 1', () => {
-            const inputs = _testValues.allButNumber(-1);
+        it('should throw an ArgError with a custom message if the error is a string', () => {
+            const message = _testValues.getString('message');
+            const inputs = _getErrorInputs(message);
+            const tester = _createTester();
 
-            inputs.forEach((minLength) => {
-                const ret = _argValidator.checkString('', minLength);
+            tester.checkError(inputs, ArgError, message);
+        });
 
-                expect(ret.hasErrors).to.be.true;
-            });
+        it('should return true if the input is a valid string and is long enough', () => {
+            const inputs = _getValidInputs();
+            const tester = _createTester();
+
+            tester.checkTrue(inputs);
         });
     });
 
     describe('checkEnum()', () => {
-        it('should return an ArgCheckResult object when invoked', () => {
-            const ret = _argValidator.checkEnum('foo', []);
+        function _createTester() {
+            return new Tester(_argValidator.checkEnum);
+        }
 
-            expect(ret).to.be.an.instanceof(ArgCheckResult);
+        function _getErrorInputs(error, enumCount, inputCount) {
+            if (typeof enumCount !== 'number') {
+                enumCount = 10;
+            }
+            if (typeof inputCount !== 'number') {
+                inputCount = 5;
+            }
+
+            const enumList = [];
+            for (let index = 0; index < enumCount; index++) {
+                enumList.push(_testValues.getString(`enum_${index}`));
+            }
+
+            const inputs = _testValues.allButSelected();
+            for (let index = 0; index < inputCount; index++) {
+                inputs.push(_testValues.getString(`value_${index}`));
+            }
+
+            return inputs.map((item) => [item, enumList, error]);
+        }
+
+        function _getValidInputs(enumCount, inputCount) {
+            if (typeof enumCount !== 'number') {
+                enumCount = 10;
+            }
+            if (typeof inputCount !== 'number') {
+                inputCount = 5;
+            }
+
+            const enumList = [];
+            for (let index = 0; index < enumCount; index++) {
+                enumList.push(_testValues.getString(`enum_${index}`));
+            }
+
+            const inputs = [];
+            for (let index = 0; index < inputCount; index++) {
+                let enumIndex = Math.floor(Math.random() * enumCount);
+                inputs.push(enumList[enumIndex]);
+            }
+            return inputs.map((item) => [item, enumList]);
+        }
+
+        it('should return false if the input is not a valid enum member', () => {
+            const inputs = _getErrorInputs();
+            const tester = _createTester();
+
+            tester.checkFalse(inputs);
         });
 
-        it('should fail argument validation if values list is empty', () => {
-            const values = [];
+        it('should return false if the enum list is empty', () => {
+            const inputs = _getErrorInputs(undefined, 0, 10);
+            const tester = _createTester();
 
-            const ret = _argValidator.checkEnum('foo', values);
-            expect(ret.hasErrors).to.be.true;
+            tester.checkFalse(inputs);
         });
 
-        it('should fail argument validation if values list is not an array', () => {
-            const inputs = _testValues.allButArray();
+        it('should throw the error if the error is a custom error type', () => {
+            const message = _testValues.getString('message');
+            const error = new CustomError(message);
+            const inputs = _getErrorInputs(error);
+            const tester = _createTester();
 
-            inputs.forEach((values) => {
-                const ret = _argValidator.checkEnum('foo', values);
-                expect(ret.hasErrors).to.be.true;
-            });
+            tester.checkError(inputs, CustomError, message);
         });
 
-        it('should fail argument validation if arg is not present in the values list', () => {
-            const inputs = _testValues.allButString('foo');
-            const values = ['good', 'better', 'best'];
+        it('should throw an ArgError with a custom message if the error is a string', () => {
+            const message = _testValues.getString('message');
+            const inputs = _getErrorInputs(message);
+            const tester = _createTester();
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkEnum(arg, values);
-                expect(ret.hasErrors).to.be.true;
-            });
+            tester.checkError(inputs, ArgError, message);
         });
 
-        it('should pass argument validation if arg is present in the values list', () => {
-            const inputs = _testValues.allButString('foo');
+        it('should return true if the input is a valid enum value', () => {
+            const inputs = _getValidInputs();
+            const tester = _createTester();
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkEnum(arg, inputs);
-                expect(ret.hasErrors).to.be.false;
-            });
+            tester.checkTrue(inputs);
         });
     });
 
     describe('checkNumber()', () => {
-        it('should return an ArgCheckResult object when invoked', () => {
-            const ret = _argValidator.checkNumber(123);
+        function _createTester() {
+            return new Tester(_argValidator.checkNumber);
+        }
 
-            expect(ret).to.be.an.instanceof(ArgCheckResult);
+        function _getErrorInputs(error) {
+            return _testValues.allButNumber().map((item) => [item, 1, error]);
+        }
+
+        function _getValidInputs(count) {
+            count = count || 10;
+            const inputs = [];
+            for (let index = 0; index < count; index++) {
+                inputs.push(_testValues.getNumber(100, 100));
+            }
+            return inputs.map((item) => [item, 1]);
+        }
+
+        it('should return false if the input is not a valid number', () => {
+            const inputs = _getErrorInputs();
+            const tester = _createTester();
+
+            tester.checkFalse(inputs);
         });
 
-        it('should fail argument validation if the input is not a valid number', () => {
-            const inputs = _testValues.allButNumber();
+        it('should return false if the input is a valid number, but is too small', () => {
+            const inputs = [[8, 10], [0, 1], [-1, 0]];
+            const tester = _createTester();
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkNumber(arg);
-                expect(ret.hasErrors).to.be.true;
-            });
+            tester.checkFalse(inputs);
         });
 
-        it('should pass argument validation if the input is a valid number', () => {
-            const inputs = [1, 1, 2, 3, 5, 8, 13, 21];
+        it('should default the min value to 1 if omitted', () => {
+            const errorInputs = [[-1, 0]];
+            const okInputs = [[_testValues.getNumber(100, 100)]];
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkNumber(arg);
-                expect(ret.hasErrors).to.be.false;
-            });
+            const tester = _createTester();
+            tester.checkFalse(errorInputs);
+            tester.checkTrue(okInputs);
         });
 
-        it('should validate args against minmum value requirements', () => {
-            const inputs = [
-                {
-                    arg: 2,
-                    min: 4,
-                    hasErrors: true
-                },
-                {
-                    arg: 2,
-                    min: 2,
-                    hasErrors: false
-                },
-                {
-                    arg: 0,
-                    min: -1,
-                    hasErrors: false
-                }
-            ];
+        it('should throw the error if the error is a custom error type', () => {
+            const message = _testValues.getString('message');
+            const error = new CustomError(message);
+            const inputs = _getErrorInputs(error);
+            const tester = _createTester();
 
-            inputs.forEach((input) => {
-                const { arg, min, hasErrors } = input;
-                const ret = _argValidator.checkNumber(arg, min);
-
-                expect(ret.hasErrors).to.equal(hasErrors);
-            });
+            tester.checkError(inputs, CustomError, message);
         });
 
-        it('should default the min parameter to 1', () => {
-            const inputs = _testValues.allButNumber();
+        it('should throw an ArgError with a custom message if the error is a string', () => {
+            const message = _testValues.getString('message');
+            const inputs = _getErrorInputs(message);
+            const tester = _createTester();
 
-            inputs.forEach((min) => {
-                const ret = _argValidator.checkNumber(-1, min);
+            tester.checkError(inputs, ArgError, message);
+        });
 
-                expect(ret.hasErrors).to.be.true;
-            });
+        it('should return true if the input is a valid number and is large enough', () => {
+            const inputs = _getValidInputs();
+            const tester = _createTester();
+
+            tester.checkTrue(inputs);
         });
     });
 
     describe('checkObject()', () => {
-        it('should return an ArgCheckResult object when invoked', () => {
-            const ret = _argValidator.checkObject({});
+        function _createTester() {
+            return new Tester(_argValidator.checkObject);
+        }
 
-            expect(ret).to.be.an.instanceof(ArgCheckResult);
+        function _getErrorInputs(error) {
+            return _testValues.allButObject().map((item) => [item, error]);
+        }
+
+        function _getValidInputs() {
+            function Foo() {}
+            const inputs = [{}, new Foo()];
+            return inputs.map((item) => [item]);
+        }
+
+        it('should return false if the input is not a valid object', () => {
+            const inputs = _getErrorInputs();
+            const tester = _createTester();
+
+            tester.checkFalse(inputs);
         });
 
-        it('should fail argument validation if the input is not a valid object', () => {
-            const inputs = _testValues.allButObject();
+        it('should throw the error if the error is a custom error type', () => {
+            const message = _testValues.getString('message');
+            const error = new CustomError(message);
+            const inputs = _getErrorInputs(error);
+            const tester = _createTester();
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkObject(arg);
-                expect(ret.hasErrors).to.be.true;
-            });
+            tester.checkError(inputs, CustomError, message);
         });
 
-        it('should pass argument validation if the input is a valid object', () => {
-            const inputs = [{}, new Error(), { abc: 123 }];
+        it('should throw an ArgError with a custom message if the error is a string', () => {
+            const message = _testValues.getString('message');
+            const inputs = _getErrorInputs(message);
+            const tester = _createTester();
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkObject(arg);
-                expect(ret.hasErrors).to.be.false;
-            });
+            tester.checkError(inputs, ArgError, message);
+        });
+
+        it('should return true if the input is a valid object', () => {
+            const inputs = _getValidInputs();
+            const tester = _createTester();
+
+            tester.checkTrue(inputs);
         });
     });
 
     describe('checkArray()', () => {
-        it('should return an ArgCheckResult object when invoked', () => {
-            const ret = _argValidator.checkArray([]);
+        function _createTester() {
+            return new Tester(_argValidator.checkArray);
+        }
 
-            expect(ret).to.be.an.instanceof(ArgCheckResult);
+        function _getErrorInputs(error) {
+            return _testValues.allButArray().map((item) => [item, error]);
+        }
+
+        function _getValidInputs() {
+            const inputs = [[], new Array()];
+            return inputs.map((item) => [item]);
+        }
+
+        it('should return false if the input is not a valid array', () => {
+            const inputs = _getErrorInputs();
+            const tester = _createTester();
+
+            tester.checkFalse(inputs);
         });
 
-        it('should fail argument validation if the input is not a valid array', () => {
-            const inputs = _testValues.allButArray();
+        it('should throw the error if the error is a custom error type', () => {
+            const message = _testValues.getString('message');
+            const error = new CustomError(message);
+            const inputs = _getErrorInputs(error);
+            const tester = _createTester();
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkArray(arg);
-                expect(ret.hasErrors).to.be.true;
-            });
+            tester.checkError(inputs, CustomError, message);
         });
 
-        it('should pass argument validation if the input is a valid array', () => {
-            const inputs = [[1], ['foo', 'bar', {}]];
+        it('should throw an ArgError with a custom message if the error is a string', () => {
+            const message = _testValues.getString('message');
+            const inputs = _getErrorInputs(message);
+            const tester = _createTester();
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkArray(arg);
-                expect(ret.hasErrors).to.be.false;
-            });
+            tester.checkError(inputs, ArgError, message);
+        });
+
+        it('should return true if the input is a valid array', () => {
+            const inputs = _getValidInputs();
+            const tester = _createTester();
+
+            tester.checkTrue(inputs);
         });
     });
 
     describe('checkBoolean()', () => {
-        it('should return an ArgCheckResult object when invoked', () => {
-            const ret = _argValidator.checkBoolean([]);
+        function _createTester() {
+            return new Tester(_argValidator.checkBoolean);
+        }
 
-            expect(ret).to.be.an.instanceof(ArgCheckResult);
-        });
+        function _getErrorInputs(error) {
+            return _testValues.allButBoolean().map((item) => [item, error]);
+        }
 
-        it('should fail argument validation if the input is not a valid boolean', () => {
-            const inputs = _testValues.allButBoolean();
-
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkBoolean(arg);
-                expect(ret.hasErrors).to.be.true;
-            });
-        });
-
-        it('should pass argument validation if the input is a valid boolean', () => {
+        function _getValidInputs() {
             const inputs = [true, false];
+            return inputs.map((item) => [item]);
+        }
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkBoolean(arg);
-                expect(ret.hasErrors).to.be.false;
-            });
+        it('should return false if the input is not a valid boolean', () => {
+            const inputs = _getErrorInputs();
+            const tester = _createTester();
+
+            tester.checkFalse(inputs);
+        });
+
+        it('should throw the error if the error is a custom error type', () => {
+            const message = _testValues.getString('message');
+            const error = new CustomError(message);
+            const inputs = _getErrorInputs(error);
+            const tester = _createTester();
+
+            tester.checkError(inputs, CustomError, message);
+        });
+
+        it('should throw an ArgError with a custom message if the error is a string', () => {
+            const message = _testValues.getString('message');
+            const inputs = _getErrorInputs(message);
+            const tester = _createTester();
+
+            tester.checkError(inputs, ArgError, message);
+        });
+
+        it('should return true if the input is a valid boolean', () => {
+            const inputs = _getValidInputs();
+            const tester = _createTester();
+
+            tester.checkTrue(inputs);
         });
     });
 
     describe('checkFunction()', () => {
-        it('should return an ArgCheckResult object when invoked', () => {
-            const ret = _argValidator.checkFunction({});
+        function _createTester() {
+            return new Tester(_argValidator.checkFunction);
+        }
 
-            expect(ret).to.be.an.instanceof(ArgCheckResult);
+        function _getErrorInputs(error) {
+            return _testValues.allButFunction().map((item) => [item, error]);
+        }
+
+        function _getValidInputs() {
+            const inputs = [() => {}, function foo() {}];
+            return inputs.map((item) => [item]);
+        }
+
+        it('should return false if the input is not a valid function', () => {
+            const inputs = _getErrorInputs();
+            const tester = _createTester();
+
+            tester.checkFalse(inputs);
         });
 
-        it('should fail argument validation if the input is not a valid function', () => {
-            const inputs = _testValues.allButFunction();
+        it('should throw the error if the error is a custom error type', () => {
+            const message = _testValues.getString('message');
+            const error = new CustomError(message);
+            const inputs = _getErrorInputs(error);
+            const tester = _createTester();
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkFunction(arg);
-                expect(ret.hasErrors).to.be.true;
-            });
+            tester.checkError(inputs, CustomError, message);
         });
 
-        it('should pass argument validation if the input is a valid function', () => {
-            const inputs = [() => {}, function() {}];
+        it('should throw an ArgError with a custom message if the error is a string', () => {
+            const message = _testValues.getString('message');
+            const inputs = _getErrorInputs(message);
+            const tester = _createTester();
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkFunction(arg);
-                expect(ret.hasErrors).to.be.false;
-            });
+            tester.checkError(inputs, ArgError, message);
+        });
+
+        it('should return true if the input is a valid function', () => {
+            const inputs = _getValidInputs();
+            const tester = _createTester();
+
+            tester.checkTrue(inputs);
         });
     });
 
     describe('checkInstance()', () => {
-        it('should return an ArgCheckResult object when invoked', () => {
-            const ret = _argValidator.checkInstance({}, Array);
+        function _createTester() {
+            return new Tester(_argValidator.checkInstance);
+        }
 
-            expect(ret).to.be.an.instanceof(ArgCheckResult);
+        function _getErrorInputs(error) {
+            const instanceList = _testValues.allButSelected();
+            function Foo() {}
+            return instanceList.map((item) => [item, Foo, error]);
+        }
+
+        function _getValidInputs(instanceCount, inputCount) {
+            if (typeof instanceCount !== 'number') {
+                instanceCount = 5;
+            }
+            if (typeof inputCount !== 'number') {
+                inputCount = 10;
+            }
+
+            const instanceList = [];
+            for (let index = 0; index < instanceCount; index++) {
+                instanceList.push(function() {});
+            }
+
+            const inputs = [];
+            for (let index = 0; index < inputCount; index++) {
+                let instanceIndex = Math.floor(Math.random() * instanceCount);
+                let type = instanceList[instanceIndex];
+                inputs.push([new type(), type]);
+            }
+            return inputs;
+        }
+
+        it('should return false if the input is not a valid instance', () => {
+            const inputs = _getErrorInputs();
+            const tester = _createTester();
+
+            tester.checkFalse(inputs);
         });
 
-        it('should fail argument validation if the input is not a valid instance of the type', () => {
-            const inputs = _testValues.allButObject({});
-            function Type() {}
-
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkInstance(arg, Type);
-                expect(ret.hasErrors).to.be.true;
+        it('should return false if the type is invalid', () => {
+            const inputs = _testValues.allButFunction().map((type) => {
+                return [new Array(), type];
             });
+            const tester = _createTester();
+
+            tester.checkFalse(inputs);
         });
 
-        it('should fail argument validation if the type argument is invalid', () => {
-            const inputs = _testValues.allButFunction({});
+        it('should throw the error if the error is a custom error type', () => {
+            const message = _testValues.getString('message');
+            const error = new CustomError(message);
+            const inputs = _getErrorInputs(error);
+            const tester = _createTester();
 
-            inputs.forEach((Type) => {
-                const ret = _argValidator.checkInstance({}, Type);
-                expect(ret.hasErrors).to.be.true;
-            });
+            tester.checkError(inputs, CustomError, message);
         });
 
-        it('should pass argument validation if the arg is a valid instance of the type', () => {
-            function Type() {}
-            const inputs = [new Type(), new Type()];
+        it('should throw an ArgError with a custom message if the error is a string', () => {
+            const message = _testValues.getString('message');
+            const inputs = _getErrorInputs(message);
+            const tester = _createTester();
 
-            inputs.forEach((arg) => {
-                const ret = _argValidator.checkInstance(arg, Type);
-                expect(ret.hasErrors).to.be.false;
-            });
+            tester.checkError(inputs, ArgError, message);
+        });
+
+        it('should return true if the input is a valid instance value', () => {
+            const inputs = _getValidInputs();
+            const tester = _createTester();
+
+            tester.checkTrue(inputs);
         });
     });
 });
