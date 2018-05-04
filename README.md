@@ -36,11 +36,11 @@ npm install @vamship/arg-utils
 
 This libary exports two modules:
 
-* **schemaHelper**: Generates a schema validator function based on a schema
-  object. This function can then be used to validate inputs against this
-  schema.
-* **argValidator**: Provides basic argument validation functionality for
-  function input validation.
+*   **schemaHelper**: Generates a schema validator function based on a schema
+    object. This function can then be used to validate inputs against this
+    schema.
+*   **argValidator**: Provides basic argument validation functionality for
+    function input validation.
 
 ## Release Notes
 
