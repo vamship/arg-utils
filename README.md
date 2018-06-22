@@ -24,6 +24,10 @@ schema.
 This library makes it syntactically nicer to perform such checks, by providing
 utility methods for both argument checks and schema validation.
 
+## API Documentation
+
+API documentation can be found [here](https://vamship.github.io/arg-utils).
+
 ## Installation
 
 This library can be installed via npm using:
