@@ -1,6 +1,6 @@
 {
   "name": "@vamship/arg-utils",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Utility library for argument validations",
   "main": "src/index.js",
   "scripts": {
