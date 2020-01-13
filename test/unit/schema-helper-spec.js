@@ -116,9 +116,7 @@ describe('schemaHelper', function() {
                     dataPath: 'foo',
                     message: 'bar'
                 };
-                const message = `[SchemaError] Schema validation failed. Details: [${
-                    schemaErr.dataPath
-                }: ${schemaErr.message}]`;
+                const message = `[SchemaError] Schema validation failed. Details: [${schemaErr.dataPath}: ${schemaErr.message}]`;
 
                 const wrapper = () => {
                     _ajvMock._isValid = false;
@@ -140,9 +138,7 @@ describe('schemaHelper', function() {
                 const schemaErr = {
                     message: 'bar'
                 };
-                const errMessage = `[SchemaError] Schema validation failed. Details: [<root>: ${
-                    schemaErr.message
-                }]`;
+                const errMessage = `[SchemaError] Schema validation failed. Details: [<root>: ${schemaErr.message}]`;
 
                 const wrapper = () => {
                     const validator = _createValidator();
@@ -159,9 +155,7 @@ describe('schemaHelper', function() {
                     dataPath: 'foo',
                     message: 'bar'
                 };
-                const errMessage = `[SchemaError] ${customMessage}. Details: [${
-                    schemaErr.dataPath
-                }: ${schemaErr.message}]`;
+                const errMessage = `[SchemaError] ${customMessage}. Details: [${schemaErr.dataPath}: ${schemaErr.message}]`;
 
                 const wrapper = () => {
                     const validator = _createValidator(customMessage);

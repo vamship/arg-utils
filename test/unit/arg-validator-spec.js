@@ -90,7 +90,10 @@ describe('argValidator', function() {
         });
 
         it('should return false if the input is a valid string, but is too short', () => {
-            const inputs = [['foo', 10], ['', 1]];
+            const inputs = [
+                ['foo', 10],
+                ['', 1]
+            ];
             const tester = _createTester();
 
             tester.checkFalse(inputs);
@@ -242,7 +245,11 @@ describe('argValidator', function() {
         });
 
         it('should return false if the input is a valid number, but is too small', () => {
-            const inputs = [[8, 10], [0, 1], [-1, 0]];
+            const inputs = [
+                [8, 10],
+                [0, 1],
+                [-1, 0]
+            ];
             const tester = _createTester();
 
             tester.checkFalse(inputs);
