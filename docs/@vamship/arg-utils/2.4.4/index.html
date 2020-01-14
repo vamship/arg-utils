@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-argValidator.html">argValidator</a><ul class='methods'><li data-type='method'><a href="module-argValidator.html#.checkArray">checkArray</a></li><li data-type='method'><a href="module-argValidator.html#.checkBoolean">checkBoolean</a></li><li data-type='method'><a href="module-argValidator.html#.checkEnum">checkEnum</a></li><li data-type='method'><a href="module-argValidator.html#.checkFunction">checkFunction</a></li><li data-type='method'><a href="module-argValidator.html#.checkInstance">checkInstance</a></li><li data-type='method'><a href="module-argValidator.html#.checkNumber">checkNumber</a></li><li data-type='method'><a href="module-argValidator.html#.checkObject">checkObject</a></li><li data-type='method'><a href="module-argValidator.html#.checkString">checkString</a></li></ul></li><li><a href="module-schemaHelper.html">schemaHelper</a><ul class='methods'><li data-type='method'><a href="module-schemaHelper.html#.createSchemaChecker">createSchemaChecker</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+    <section class="package">
+        <h3> </h3>		
+    </section>
+
+
+
+
+
+
+
+
+
+    
+
+
+
+    <section class="readme">
+        <article><h1>Arg Utils</h1>
+<p>Utility library for argument validations. Provides modules for function
+argument validations and JSON schema validations. Function argument checks are
+important in loosely typed languages such as javascript, and a good development
+practice is to explicitly check each function argument prior to using it, like
+this:</p>
+<pre class="prettyprint source"><code>function sayHello(name, lang) {
+    if(typeof name !== 'string' || name.length &lt;= 0) {
+        throw new Error('Invalid name argument (arg #1)');
+    }
+    if(typeof lang !== 'string' || lang.length &lt;= 0) {
+        lang = 'english';
+    }
+}
+</code></pre>
+<p>In other situations (ex: AWS Lambda functions), the function may accept a
+simple object as an input, but expect that the object conforms to a specific
+schema.</p>
+<p>This library makes it syntactically nicer to perform such checks, by providing
+utility methods for both argument checks and schema validation.</p>
+<h2>API Documentation</h2>
+<p>API documentation can be found <a href="https://vamship.github.io/arg-utils">here</a>.</p>
+<h2>Installation</h2>
+<p>This library can be installed via npm using:</p>
+<pre class="prettyprint source"><code>npm install @vamship/arg-utils
+</code></pre>
+<h2>Usage</h2>
+<p>This libary exports two modules:</p>
+<ul>
+<li><strong>schemaHelper</strong>: Generates a schema validator function based on a schema
+object. This function can then be used to validate inputs against this
+schema.</li>
+<li><strong>argValidator</strong>: Provides basic argument validation functionality for
+function input validation.</li>
+</ul>
+<h2>Release Notes</h2>
+<h3>V2.0.0</h3>
+<p>This version introduces breaking changes in order to find a better balance
+between &quot;syntactic niceness&quot; and performance. V1.x allowed error checks and
+default settings to be applied by allowing chained function calls, for example:</p>
+<pre class="prettyprint source"><code>    _argValidator.checkString(someArg).throw('some error');
+</code></pre>
+<p>While one could argue that this made the code more readable, quick performance
+tests showed that these checks were multiple orders of magnitude slower than
+simple error checks using <code>if-then-else</code> statements. The fact that they are
+slower was expected, but how much slower they really were was a surprise.</p>
+<p>Version 2.0.0 changes the validator signatures to accept the error message as
+a part of the check function, and throws immediately, like this:</p>
+<pre class="prettyprint source"><code>    _argValidator.checkString(someArg, 1, 'some error'); // Throws an error.
+
+    _argValidator.checkString(someArg, 1); // Does not throw, returns false.
+</code></pre>
+<h2>Examples</h2>
+<h2>Argument Validation</h2>
+<pre class="prettyprint source"><code>const _argValidator = require('@vamship/arg-validator').argValidator;
+
+...
+
+function sayHello(name, lang) {
+    _argValidator.checkString(name, 1, 'Invalid name (arg #1)');
+    if(!_argValidator.checkString(lang, 1)){
+        lang = 'english';
+    }
+}
+</code></pre>
+<h3>Schema Validation</h3>
+<pre class="prettyprint source"><code>const _schemaHelper = require('@vamship/arg-validator').schemaHelper;
+const schema = require('&lt;path to json schema>');
+const checkSchema = _schemaHelper.createSchemaChecker(schema);
+
+...
+
+function processInput(input) {
+    checkSchema(input, true) // Throws a schema error
+}
+
+...
+
+function processInput(input) {
+    if(!checkSchema(input)) { // Does not throw an error, but returns false
+
+        // Perform some actions on schema validation failure
+    }
+}
+</code></pre></article>
+    </section>
+
+
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Tue Jan 14 2020 09:36:57 GMT-0500 (Eastern Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

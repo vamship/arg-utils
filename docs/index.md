@@ -8,3 +8,4 @@ Documentation for specific releases can be found here:
 ## [v2.0.0](./@vamship/arg-utils/2.0.0/index.html)
 ## [v2.0.1](./@vamship/arg-utils/2.0.1/index.html)
 ## [v2.2.0](./@vamship/arg-utils/2.2.0/index.html)
+## [v2.4.4](./@vamship/arg-utils/2.4.4/index.html)
