@@ -49,7 +49,7 @@ module.exports = {
      * @throws {ArgError|Error} Thrown if validation fails, and the input error
      *         is not undefined.
      */
-    checkString: function(arg, minLength, error) {
+    checkString: function (arg, minLength, error) {
         if (typeof minLength !== 'number' || minLength < 0) {
             minLength = 1;
         }
@@ -71,7 +71,7 @@ module.exports = {
      * @throws {ArgError|Error} Thrown if validation fails, and the input error
      *         is not undefined.
      */
-    checkEnum: function(arg, values, error) {
+    checkEnum: function (arg, values, error) {
         const isOk = values instanceof Array && values.indexOf(arg) >= 0;
         return _handleResult(isOk, error);
     },
@@ -88,7 +88,7 @@ module.exports = {
      * @throws {ArgError|Error} Thrown if validation fails, and the input error
      *         is not undefined.
      */
-    checkNumber: function(arg, min, error) {
+    checkNumber: function (arg, min, error) {
         if (typeof min !== 'number') {
             min = 1;
         }
@@ -107,7 +107,7 @@ module.exports = {
      * @throws {ArgError|Error} Thrown if validation fails, and the input error
      *         is not undefined.
      */
-    checkObject: function(arg, error) {
+    checkObject: function (arg, error) {
         const isOk = arg && !(arg instanceof Array) && typeof arg === 'object';
         return _handleResult(isOk, error);
     },
@@ -123,7 +123,7 @@ module.exports = {
      * @throws {ArgError|Error} Thrown if validation fails, and the input error
      *         is not undefined.
      */
-    checkArray: function(arg, error) {
+    checkArray: function (arg, error) {
         const isOk = arg instanceof Array;
         return _handleResult(isOk, error);
     },
@@ -139,7 +139,7 @@ module.exports = {
      * @throws {ArgError|Error} Thrown if validation fails, and the input error
      *         is not undefined.
      */
-    checkBoolean: function(arg, error) {
+    checkBoolean: function (arg, error) {
         const isOk = typeof arg === 'boolean';
         return _handleResult(isOk, error);
     },
@@ -155,7 +155,7 @@ module.exports = {
      * @throws {ArgError|Error} Thrown if validation fails, and the input error
      *         is not undefined.
      */
-    checkFunction: function(arg, error) {
+    checkFunction: function (arg, error) {
         const isOk = typeof arg === 'function';
         return _handleResult(isOk, error);
     },
@@ -172,8 +172,8 @@ module.exports = {
      * @throws {ArgError|Error} Thrown if validation fails, and the input error
      *         is not undefined.
      */
-    checkInstance: function(arg, type, error) {
+    checkInstance: function (arg, type, error) {
         const isOk = typeof type === 'function' && arg instanceof type;
         return _handleResult(isOk, error);
-    }
+    },
 };

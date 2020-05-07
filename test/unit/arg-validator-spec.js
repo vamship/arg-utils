@@ -13,7 +13,7 @@ const { ArgError } = require('@vamship/error-types').args;
 
 let _argValidator = null;
 
-describe('argValidator', function() {
+describe('argValidator', function () {
     beforeEach(() => {
         _argValidator = _rewire('../../src/arg-validator');
     });
@@ -92,7 +92,7 @@ describe('argValidator', function() {
         it('should return false if the input is a valid string, but is too short', () => {
             const inputs = [
                 ['foo', 10],
-                ['', 1]
+                ['', 1],
             ];
             const tester = _createTester();
 
@@ -248,7 +248,7 @@ describe('argValidator', function() {
             const inputs = [
                 [8, 10],
                 [0, 1],
-                [-1, 0]
+                [-1, 0],
             ];
             const tester = _createTester();
 
@@ -495,7 +495,7 @@ describe('argValidator', function() {
 
             const instanceList = [];
             for (let index = 0; index < instanceCount; index++) {
-                instanceList.push(function() {});
+                instanceList.push(function () {});
             }
 
             const inputs = [];

@@ -15,7 +15,7 @@ const { ArgError, SchemaError } = require('@vamship/error-types').args;
 
 let _schemaHelper = null;
 
-describe('schemaHelper', function() {
+describe('schemaHelper', function () {
     let _ajvMock = null;
 
     function _getSchema() {
@@ -34,7 +34,7 @@ describe('schemaHelper', function() {
         _schemaHelper.__set__('_ajv', _ajvMock.ctor);
     });
 
-    it('should implement methods required by the interface', function() {
+    it('should implement methods required by the interface', function () {
         expect(_schemaHelper.createSchemaChecker).to.be.a('function');
     });
 
@@ -101,7 +101,7 @@ describe('schemaHelper', function() {
                 const validator = _createValidator();
                 const schemaErr = {
                     dataPath: 'foo',
-                    message: 'bar'
+                    message: 'bar',
                 };
 
                 _ajvMock._isValid = false;
@@ -114,7 +114,7 @@ describe('schemaHelper', function() {
                 const validator = _createValidator();
                 const schemaErr = {
                     dataPath: 'foo',
-                    message: 'bar'
+                    message: 'bar',
                 };
                 const message = `[SchemaError] Schema validation failed. Details: [${schemaErr.dataPath}: ${schemaErr.message}]`;
 
@@ -136,7 +136,7 @@ describe('schemaHelper', function() {
 
             it('should default the schema error dataPath to "root" if one was not returned', () => {
                 const schemaErr = {
-                    message: 'bar'
+                    message: 'bar',
                 };
                 const errMessage = `[SchemaError] Schema validation failed. Details: [<root>: ${schemaErr.message}]`;
 
@@ -153,7 +153,7 @@ describe('schemaHelper', function() {
                 const customMessage = 'Something went wrong';
                 const schemaErr = {
                     dataPath: 'foo',
-                    message: 'bar'
+                    message: 'bar',
                 };
                 const errMessage = `[SchemaError] ${customMessage}. Details: [${schemaErr.dataPath}: ${schemaErr.message}]`;
 

@@ -12,5 +12,5 @@ module.exports = {
     /**
      * Argument validator
      */
-    argValidator: require('./arg-validator')
+    argValidator: require('./arg-validator'),
 };

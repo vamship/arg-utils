@@ -36,7 +36,7 @@ module.exports = {
      *         If validation succeeds, the method will return false. Otherwise
      *         an error will be thrown (SchemaError).
      */
-    createSchemaChecker: function(schema, errorMessage) {
+    createSchemaChecker: function (schema, errorMessage) {
         if (!schema || schema instanceof Array || typeof schema !== 'object') {
             throw new ArgError('Invalid schema specified (arg #1)');
         }
@@ -49,13 +49,14 @@ module.exports = {
                 if (throwError) {
                     const { dataPath, message } = validator.errors[0];
                     throw new SchemaError(
-                        `${errorMessage}. Details: [${dataPath ||
-                            '<root>'}: ${message}]`
+                        `${errorMessage}. Details: [${
+                            dataPath || '<root>'
+                        }: ${message}]`
                     );
                 }
                 return false;
             }
             return true;
         };
-    }
+    },
 };
