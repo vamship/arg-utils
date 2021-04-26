@@ -18,8 +18,8 @@
     "license": "MIT",
     "devDependencies": {
         "@vamship/build-utils": "0.8.2",
-        "@vamship/error-types": "^1.7.11",
-        "@vamship/test-utils": "^2.4.13",
+        "@vamship/error-types": "^1.7.12",
+        "@vamship/test-utils": "^2.4.14",
         "ansi-colors": "^4.1.1",
         "chai": "^4.3.4",
         "chai-as-promised": "^7.1.1",
@@ -35,7 +35,7 @@
         "ajv": "^8.1.0"
     },
     "peerDependencies": {
-        "@vamship/error-types": "^1.7.11"
+        "@vamship/error-types": "^1.7.12"
     },
     "repository": {
         "type": "git",
