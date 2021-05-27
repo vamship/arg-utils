@@ -31,7 +31,7 @@ describe('schemaHelper', function () {
         _ajvMock._isValid = true;
 
         _schemaHelper = _rewire('../../src/schema-helper');
-        _schemaHelper.__set__('_ajv', _ajvMock.ctor);
+        _schemaHelper.__set__('Ajv', _ajvMock.ctor);
     });
 
     it('should implement methods required by the interface', function () {
@@ -69,6 +69,7 @@ describe('schemaHelper', function () {
             _schemaHelper.createSchemaChecker(schema);
 
             expect(_ajvMock.ctor).to.have.been.calledOnce;
+            expect(_ajvMock.ctor).to.have.been.calledWithNew;
             expect(compileMethod.stub).to.have.been.calledOnce;
             expect(compileMethod.stub).to.have.been.calledWith(schema);
         });

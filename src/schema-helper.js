@@ -1,6 +1,6 @@
 'use strict';
 
-const _ajv = require('ajv');
+const Ajv = require('ajv');
 const { SchemaError, ArgError } = require('@vamship/error-types').args;
 
 /**
@@ -43,7 +43,7 @@ module.exports = {
         if (typeof errorMessage !== 'string') {
             errorMessage = 'Schema validation failed';
         }
-        const validator = _ajv().compile(schema);
+        const validator = new Ajv().compile(schema);
         return (target, throwError) => {
             if (!validator(target)) {
                 if (throwError) {
