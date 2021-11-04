@@ -47,10 +47,10 @@ module.exports = {
         return (target, throwError) => {
             if (!validator(target)) {
                 if (throwError) {
-                    const { dataPath, message } = validator.errors[0];
+                    const { instancePath, message } = validator.errors[0];
                     throw new SchemaError(
                         `${errorMessage}. Details: [${
-                            dataPath || '<root>'
+                            (instancePath || '<root>').replace(/\//g, '.')
                         }: ${message}]`
                     );
                 }

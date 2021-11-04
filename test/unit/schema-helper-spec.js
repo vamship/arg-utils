@@ -101,7 +101,7 @@ describe('schemaHelper', function () {
             it('should return false if schema validation fails', () => {
                 const validator = _createValidator();
                 const schemaErr = {
-                    dataPath: 'foo',
+                    instancePath: 'foo',
                     message: 'bar',
                 };
 
@@ -114,10 +114,10 @@ describe('schemaHelper', function () {
             it('should throw an error if validation fails, and throwError=true', () => {
                 const validator = _createValidator();
                 const schemaErr = {
-                    dataPath: 'foo',
+                    instancePath: 'foo',
                     message: 'bar',
                 };
-                const message = `[SchemaError] Schema validation failed. Details: [${schemaErr.dataPath}: ${schemaErr.message}]`;
+                const message = `[SchemaError] Schema validation failed. Details: [${schemaErr.instancePath}: ${schemaErr.message}]`;
 
                 const wrapper = () => {
                     _ajvMock._isValid = false;
@@ -135,7 +135,7 @@ describe('schemaHelper', function () {
                 expect(ret).to.be.true;
             });
 
-            it('should default the schema error dataPath to "root" if one was not returned', () => {
+            it('should default the schema error instancePath to "root" if one was not returned', () => {
                 const schemaErr = {
                     message: 'bar',
                 };
@@ -150,13 +150,29 @@ describe('schemaHelper', function () {
                 expect(wrapper).to.throw(SchemaError, errMessage);
             });
 
+            it('should replace "/" with "." in the instancePath', () => {
+                const schemaErr = {
+                    instancePath: 'foo/bar/baz',
+                    message: 'bar',
+                };
+                const errMessage = `[SchemaError] Schema validation failed. Details: [foo.bar.baz: ${schemaErr.message}]`;
+
+                const wrapper = () => {
+                    const validator = _createValidator();
+                    _ajvMock._isValid = false;
+                    _ajvMock._validator.errors = [schemaErr];
+                    validator({}, true);
+                };
+                expect(wrapper).to.throw(SchemaError, errMessage);
+            });
+
             it('should use the custom error message if one was specified during compilation', () => {
                 const customMessage = 'Something went wrong';
                 const schemaErr = {
-                    dataPath: 'foo',
+                    instancePath: 'foo',
                     message: 'bar',
                 };
-                const errMessage = `[SchemaError] ${customMessage}. Details: [${schemaErr.dataPath}: ${schemaErr.message}]`;
+                const errMessage = `[SchemaError] ${customMessage}. Details: [${schemaErr.instancePath}: ${schemaErr.message}]`;
 
                 const wrapper = () => {
                     const validator = _createValidator(customMessage);
