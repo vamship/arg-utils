@@ -49,9 +49,9 @@ module.exports = {
                 if (throwError) {
                     const { instancePath, message } = validator.errors[0];
                     throw new SchemaError(
-                        `${errorMessage}. Details: [${
-                            (instancePath || '<root>').replace(/\//g, '.')
-                        }: ${message}]`
+                        `${errorMessage}. Details: [${(
+                            instancePath || '<root>'
+                        ).replace(/\//g, '.')}: ${message}]`
                     );
                 }
                 return false;
