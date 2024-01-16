@@ -2,10 +2,22 @@
     "name": "@vamship/arg-utils",
     "version": "2.4.19",
     "description": "Utility library for argument validations",
+    "type": "module",
     "main": "src/index.js",
     "scripts": {
-        "all": "gulp --series format lint test-unit clean",
-        "test": "gulp test-unit"
+        "clean": "gulp clean",
+        "format": "gulp format",
+        "lint": "gulp lint",
+        "lint-fix": "gulp lint-fix",
+        "build": "gulp build",
+        "test": "cross-env NODE_ENV=test dotenv-load gulp --series clean build test-unit",
+        "package": "cross-env NODE_ENV=test dotenv-load gulp --series clean format lint build test-unit package",
+        "publish": "gulp publish",
+        "docs": "gulp docs",
+        "all": "cross-env NODE_ENV=test dotenv-load gulp --series clean format lint build test-unit clean",
+        "watch:build": "gulp watch-build",
+        "watch:test": "cross-env NODE_ENV=development dotenv-load gulp watch-test-unit",
+        "watch:lint": "gulp watch-lint"
     },
     "files": [
         "package.json",
@@ -24,18 +36,18 @@
         "@vamship/build-utils": "file:../build-utils",
         "@vamship/test-utils": "file:../test-utils/dist/package",
         "c8": "^9.1.0",
-        "chai": "^4.3.4",
+        "chai": "^5.0.0",
         "chai-as-promised": "^7.1.1",
         "cross-env": "^7.0.3",
         "dotenv-load": "^3.0.0",
         "esmock": "^2.6.2",
         "gulp": "^4.0.2",
         "mocha": "^10.2.0",
-        "sinon": "^12.0.1",
+        "sinon": "^17.0.1",
         "sinon-chai": "^3.7.0"
     },
     "dependencies": {
-        "ajv": "^8.9.0"
+        "ajv": "^8.12.0"
     },
     "peerDependencies": {
         "@vamship/error-types": "file:../test-utils/dist/package"
