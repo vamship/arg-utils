@@ -12,7 +12,10 @@ import { ArgError } from '@vamship/error-types';
  * @throws {ArgError|Error} Thrown if validation fails, and the input error is
  *         not undefined.
  */
-function _handleResult(isValid: boolean, error: string | Error): boolean {
+function _handleResult(
+    isValid: boolean,
+    error: string | Error | undefined = undefined,
+): boolean {
     if (!isValid) {
         if (error instanceof Error) {
             throw error;
@@ -45,8 +48,8 @@ function _handleResult(isValid: boolean, error: string | Error): boolean {
  */
 export function checkString(
     arg: string | undefined,
-    minLength: number | undefined,
-    error: string | Error,
+    minLength: number = 1,
+    error: string | Error | undefined = undefined,
 ): boolean {
     if (typeof minLength !== 'number' || minLength < 0) {
         minLength = 1;
@@ -70,7 +73,7 @@ export function checkString(
 export function checkEnum(
     arg: string | number | undefined,
     values: Array<string | number | undefined>,
-    error: string | Error,
+    error: string | Error | undefined = undefined,
 ): boolean {
     const isOk = values instanceof Array && values.indexOf(arg) >= 0;
     return _handleResult(isOk, error);
@@ -90,7 +93,7 @@ export function checkEnum(
 export function checkNumber(
     arg: number | undefined,
     min: number | undefined,
-    error: string | Error,
+    error: string | Error | undefined = undefined,
 ): boolean {
     if (typeof min !== 'number') {
         min = 1;
@@ -111,7 +114,7 @@ export function checkNumber(
  */
 export function checkObject(
     arg: Object | undefined,
-    error: string | Error,
+    error: string | Error | undefined = undefined,
 ): boolean {
     const isOk = !!arg && !(arg instanceof Array) && typeof arg === 'object';
     return _handleResult(isOk, error);
@@ -128,7 +131,10 @@ export function checkObject(
  *         is not undefined.
  * @typeparam T The type of the array elements.
  */
-export function checkArray<T>(arg: Array<T>, error: string | Error): boolean {
+export function checkArray<T>(
+    arg: Array<T>,
+    error: string | Error | undefined = undefined,
+): boolean {
     const isOk = arg instanceof Array;
     return _handleResult(isOk, error);
 }
@@ -143,7 +149,10 @@ export function checkArray<T>(arg: Array<T>, error: string | Error): boolean {
  * @throws {ArgError|Error} Thrown if validation fails, and the input error
  *         is not undefined.
  */
-export function checkBoolean(arg: boolean, error: string | Error): boolean {
+export function checkBoolean(
+    arg: boolean,
+    error: string | Error | undefined = undefined,
+): boolean {
     const isOk = typeof arg === 'boolean';
     return _handleResult(isOk, error);
 }
@@ -158,7 +167,10 @@ export function checkBoolean(arg: boolean, error: string | Error): boolean {
  * @throws {ArgError|Error} Thrown if validation fails, and the input error
  *         is not undefined.
  */
-export function checkFunction<T>(arg: T, error: string | Error): boolean {
+export function checkFunction<T>(
+    arg: T,
+    error: string | Error | undefined = undefined,
+): boolean {
     const isOk = typeof arg === 'function';
     return _handleResult(isOk, error);
 }
@@ -178,7 +190,7 @@ export function checkFunction<T>(arg: T, error: string | Error): boolean {
 export function checkInstance<T>(
     arg: T,
     type: T,
-    error: string | Error,
+    error: string | Error | undefined = undefined,
 ): boolean {
     const isOk = typeof type === 'function' && arg instanceof type;
     return _handleResult(isOk, error);
