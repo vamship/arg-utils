@@ -1,35 +1,65 @@
-// import { expect, use as _useWithChai } from 'chai';
-// import _sinonChai from 'sinon-chai';
-// import _chaiAsPromised from 'chai-as-promised';
-// import 'mocha';
+import { expect, use as _useWithChai } from 'chai';
+import _sinonChai from 'sinon-chai';
+import _chaiAsPromised from 'chai-as-promised';
+import 'mocha';
 
-// _useWithChai(_sinonChai);
-// _useWithChai(_chaiAsPromised);
+_useWithChai(_sinonChai);
+_useWithChai(_chaiAsPromised);
 
-// import { testValues as _testValues, ObjectMock  } from '@vamship/test-utils';
-// import { args as _args }  from '@vamship/error-types';
-// const { ArgError, SchemaError } = _args;
+import { SinonStub, stub } from 'sinon';
+import Ajv from 'ajv';
+import {
+    testValues as _testValues,
+    MockImporter,
+    ObjectMock,
+} from '@vamship/test-utils';
+import { ArgError, SchemaError } from '@vamship/error-types';
 
-// type AnyInput = _testValues.AnyInput;
+type AnyInput = _testValues.AnyInput;
 
-describe('schemaHelper', function () {
-    // let _ajvMock = null;
-    // function _getSchema() {
-    //     return {};
-    // }
-    // beforeEach(() => {
-    //     const schemaValidator = _sinon.stub().callsFake(() => {
-    //         return _ajvMock._isValid;
-    //     });
-    //     _ajvMock = new ObjectMock().addMock('compile', () => schemaValidator);
-    //     _ajvMock._validator = schemaValidator;
-    //     _ajvMock._isValid = true;
-    //     _schemaHelper = _rewire('../../src/schema-helper');
-    //     _schemaHelper.__set__('Ajv', _ajvMock.ctor);
-    // });
-    // it('should implement methods required by the interface', function () {
-    //     expect(_schemaHelper.createSchemaChecker).to.be.a('function');
-    // });
+// import * as _schemaHelper from '../../src/schema-helper.js';
+
+describe.only('schemaHelper', function () {
+    type SchemaChecker = (input: any, throwError?: boolean) => boolean;
+    type TargetModule = {
+        createSchemaChecker: (schema: any, message?: string) => SchemaChecker;
+    };
+    type ImportResult = {
+        testTarget: TargetModule;
+        ajvInstance: { isValid: boolean };
+        schemaValidator: SinonStub<any[], boolean>;
+    };
+
+    const importer = new MockImporter<TargetModule>(
+        'project://src/schema-helper.ts',
+        {
+            ajv: 'ajv',
+        },
+    );
+
+    async function _import(): Promise<ImportResult> {
+        const ajvInstance = {
+            isValid: false,
+        };
+
+        const ajvMock = new ObjectMock<Ajv>({} as Ajv).addMock(
+            'compile',
+            () => schemaValidator,
+        );
+        const schemaValidator = stub().callsFake(() => ajvInstance.isValid);
+
+        const testTarget = await importer.import({
+            ajv: ajvMock.ctor,
+        });
+
+        return { testTarget, ajvInstance, schemaValidator };
+    }
+
+    it('should implement methods required by the interface', async function () {
+        const { testTarget: { createSchemaChecker } } = await _import();
+        expect(createSchemaChecker).to.be.a('function');
+    });
+
     // describe('createSchemaChecker()', () => {
     //     it('should throw an error if invoked without a valid schema object', () => {
     //         const inputs = _testValues.allButObject();
