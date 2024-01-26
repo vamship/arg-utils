@@ -277,6 +277,19 @@ describe('schemaHelper', function () {
                 const wrapper = () => validator({}, true);
                 expect(wrapper).to.throw(SchemaError, errMessage);
             });
+
+            it('should throw a schema error with just the error message if the validation fails but does not return any errors', async function () {
+                const customMessage = 'Something went wrong';
+                const { validator, ajvResult } = await _createValidator(
+                    customMessage,
+                );
+                const errMessage = `[SchemaError] ${customMessage}`;
+
+                ajvResult.isValid = false;
+
+                const wrapper = () => validator({}, true);
+                expect(wrapper).to.throw(SchemaError, errMessage);
+            });
         });
     });
 });

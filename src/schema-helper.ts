@@ -1,10 +1,6 @@
 import Ajv, { JSONSchemaType } from 'ajv';
 import { ArgError, SchemaError } from '@vamship/error-types';
 
-export function foo() {
-    return Ajv;
-}
-
 /**
  * A function that can be used to check if the schema on a specific object
  * is valid.
