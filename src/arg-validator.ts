@@ -113,7 +113,7 @@ export function checkNumber(
  *         is not undefined.
  */
 export function checkObject(
-    arg: Object | undefined,
+    arg: unknown | undefined,
     error: string | Error | undefined = undefined,
 ): boolean {
     const isOk = !!arg && !(arg instanceof Array) && typeof arg === 'object';

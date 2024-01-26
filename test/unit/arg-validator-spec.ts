@@ -40,8 +40,9 @@ describe('argValidator', function () {
         testFalseResponse(inputs: T[]): void {
             inputs.forEach((input: T) => {
                 const { arg } = input;
+                const runTest = this._runTest;
                 it(`should return false if the input is not valid (value=${arg})`, async function () {
-                    expect(this._runTest(input)).to.be.false;
+                    expect(runTest(input)).to.be.false;
                 });
             });
         }
@@ -49,8 +50,9 @@ describe('argValidator', function () {
         testError(inputs: T[], errorType: unknown, message: string): void {
             inputs.forEach((input: T) => {
                 const { arg } = input;
-                it(`should return false if the input is not valid (value=${arg})`, async function() {
-                    const wrapper = () => this._runTest(input);
+                const runTest = this._runTest;
+                it(`should return false if the input is not valid (value=${arg})`, async function () {
+                    const wrapper = () => runTest(input);
                     expect(wrapper).to.throw(errorType as Error, message);
                 });
             });
@@ -59,8 +61,9 @@ describe('argValidator', function () {
         testTrueResponse(inputs: T[]): void {
             inputs.forEach((input: T) => {
                 const { arg } = input;
-                it(`should return true if the input is valid (value=${arg})`, async function() {
-                    expect(this._runTest(input)).to.be.true;
+                const runTest = this._runTest;
+                it(`should return true if the input is valid (value=${arg})`, async function () {
+                    expect(runTest(input)).to.be.true;
                 });
             });
         }
@@ -72,7 +75,7 @@ describe('argValidator', function () {
         }
     }
 
-    describe('checkString()', function() {
+    describe('checkString()', function () {
         interface IStringCheckInput extends ITesterInput {
             minLength: number | undefined;
         }
@@ -133,16 +136,17 @@ describe('argValidator', function () {
         const tester = new Tester<IStringCheckInput>(
             (input: IStringCheckInput): boolean => {
                 const { arg, minLength, error } = input;
+                /* eslint-disable-next-line tsel/no-explicit-any */
                 return _argValidator.checkString(arg as any, minLength, error);
             },
         );
 
-        describe('[invalid inputs - return false]', function() {
+        describe('[invalid inputs - return false]', function () {
             tester.testFalseResponse(_getErrorInputs());
             tester.testFalseResponse(_getOmittedLenErrorInputs());
         });
 
-        describe('[invalid - throw custom error]', function() {
+        describe('[invalid - throw custom error]', function () {
             const message = 'something went wrong';
             const error = new CustomError(message);
 
@@ -154,7 +158,7 @@ describe('argValidator', function () {
             );
         });
 
-        describe('[invalid - throw arg error]', function() {
+        describe('[invalid - throw arg error]', function () {
             const message = 'something went wrong';
 
             tester.testError(_getErrorInputs(message), ArgError, message);
@@ -165,13 +169,13 @@ describe('argValidator', function () {
             );
         });
 
-        describe('[valid inputs - return true]', function() {
+        describe('[valid inputs - return true]', function () {
             tester.testTrueResponse(_getValidInputs());
             tester.testTrueResponse(_getOmittedLenValidInputs());
         });
     });
 
-    describe('checkEnum()', function() {
+    describe('checkEnum()', function () {
         interface IEnumCheckInput extends ITesterInput {
             enumList: Array<string | number | undefined>;
         }
@@ -225,33 +229,34 @@ describe('argValidator', function () {
         const tester = new Tester<IEnumCheckInput>(
             (input: IEnumCheckInput): boolean => {
                 const { arg, enumList, error } = input;
+                /* eslint-disable-next-line tsel/no-explicit-any */
                 return _argValidator.checkEnum(arg as any, enumList, error);
             },
         );
 
-        describe('[invalid inputs - return false]', function() {
+        describe('[invalid inputs - return false]', function () {
             tester.testFalseResponse(_getErrorInputs());
         });
 
-        describe('[invalid - throw custom error]', function() {
+        describe('[invalid - throw custom error]', function () {
             const message = 'something went wrong';
             const error = new CustomError(message);
 
             tester.testError(_getErrorInputs(error), CustomError, message);
         });
 
-        describe('[invalid - throw arg error]', function() {
+        describe('[invalid - throw arg error]', function () {
             const message = 'something went wrong';
 
             tester.testError(_getErrorInputs(message), ArgError, message);
         });
 
-        describe('[valid inputs - return true]', function() {
+        describe('[valid inputs - return true]', function () {
             tester.testTrueResponse(_getValidInputs());
         });
     });
 
-    describe('checkNumber()', function() {
+    describe('checkNumber()', function () {
         interface INumberCheckInput extends ITesterInput {
             minValue: number | undefined;
         }
@@ -300,16 +305,17 @@ describe('argValidator', function () {
         const tester = new Tester<INumberCheckInput>(
             (input: INumberCheckInput): boolean => {
                 const { arg, minValue, error } = input;
+                /* eslint-disable-next-line tsel/no-explicit-any */
                 return _argValidator.checkNumber(arg as any, minValue, error);
             },
         );
 
-        describe('[invalid inputs - return false]', function() {
+        describe('[invalid inputs - return false]', function () {
             tester.testFalseResponse(_getErrorInputs());
             tester.testFalseResponse(_getOmittedMinErrorInputs());
         });
 
-        describe('[invalid - throw custom error]', function() {
+        describe('[invalid - throw custom error]', function () {
             const message = 'something went wrong';
             const error = new CustomError(message);
 
@@ -321,7 +327,7 @@ describe('argValidator', function () {
             );
         });
 
-        describe('[invalid - throw arg error]', function() {
+        describe('[invalid - throw arg error]', function () {
             const message = 'something went wrong';
 
             tester.testError(_getErrorInputs(message), ArgError, message);
@@ -332,13 +338,13 @@ describe('argValidator', function () {
             );
         });
 
-        describe('[valid inputs - return true]', function() {
+        describe('[valid inputs - return true]', function () {
             tester.testTrueResponse(_getValidInputs());
             tester.testTrueResponse(_getOmittedMinValidInputs());
         });
     });
 
-    describe('checkObject()', function() {
+    describe('checkObject()', function () {
         interface IObjectCheckInput extends ITesterInput {}
 
         function _getErrorInputs(
@@ -354,39 +360,41 @@ describe('argValidator', function () {
             error: string | Error | undefined = undefined,
         ): IObjectCheckInput[] {
             class Foo {}
+            /* eslint-disable-next-line tsel/no-explicit-any */
             return [{}, new Foo() as any].map((arg) => ({ arg, error }));
         }
 
         const tester = new Tester<IObjectCheckInput>(
             (input: IObjectCheckInput): boolean => {
                 const { arg, error } = input;
+                /* eslint-disable-next-line tsel/no-explicit-any */
                 return _argValidator.checkObject(arg as any, error);
             },
         );
 
-        describe('[invalid inputs - return false]', function() {
+        describe('[invalid inputs - return false]', function () {
             tester.testFalseResponse(_getErrorInputs());
         });
 
-        describe('[invalid - throw custom error]', function() {
+        describe('[invalid - throw custom error]', function () {
             const message = 'something went wrong';
             const error = new CustomError(message);
 
             tester.testError(_getErrorInputs(error), CustomError, message);
         });
 
-        describe('[invalid - throw arg error]', function() {
+        describe('[invalid - throw arg error]', function () {
             const message = 'something went wrong';
 
             tester.testError(_getErrorInputs(message), ArgError, message);
         });
 
-        describe('[valid inputs - return true]', function() {
+        describe('[valid inputs - return true]', function () {
             tester.testTrueResponse(_getValidInputs());
         });
     });
 
-    describe('checkArray()', function() {
+    describe('checkArray()', function () {
         interface IArrayCheckInput extends ITesterInput {}
 
         function _getErrorInputs(
@@ -407,33 +415,34 @@ describe('argValidator', function () {
         const tester = new Tester<IArrayCheckInput>(
             (input: IArrayCheckInput): boolean => {
                 const { arg, error } = input;
+                /* eslint-disable-next-line tsel/no-explicit-any */
                 return _argValidator.checkArray(arg as any, error);
             },
         );
 
-        describe('[invalid inputs - return false]', function() {
+        describe('[invalid inputs - return false]', function () {
             tester.testFalseResponse(_getErrorInputs());
         });
 
-        describe('[invalid - throw custom error]', function() {
+        describe('[invalid - throw custom error]', function () {
             const message = 'something went wrong';
             const error = new CustomError(message);
 
             tester.testError(_getErrorInputs(error), CustomError, message);
         });
 
-        describe('[invalid - throw arg error]', function() {
+        describe('[invalid - throw arg error]', function () {
             const message = 'something went wrong';
 
             tester.testError(_getErrorInputs(message), ArgError, message);
         });
 
-        describe('[valid inputs - return true]', function() {
+        describe('[valid inputs - return true]', function () {
             tester.testTrueResponse(_getValidInputs());
         });
     });
 
-    describe('checkBoolean()', function() {
+    describe('checkBoolean()', function () {
         interface IBooleanCheckInput extends ITesterInput {}
 
         function _getErrorInputs(
@@ -454,33 +463,34 @@ describe('argValidator', function () {
         const tester = new Tester<IBooleanCheckInput>(
             (input: IBooleanCheckInput): boolean => {
                 const { arg, error } = input;
+                /* eslint-disable-next-line tsel/no-explicit-any */
                 return _argValidator.checkBoolean(arg as any, error);
             },
         );
 
-        describe('[invalid inputs - return false]', function() {
+        describe('[invalid inputs - return false]', function () {
             tester.testFalseResponse(_getErrorInputs());
         });
 
-        describe('[invalid - throw custom error]', function() {
+        describe('[invalid - throw custom error]', function () {
             const message = 'something went wrong';
             const error = new CustomError(message);
 
             tester.testError(_getErrorInputs(error), CustomError, message);
         });
 
-        describe('[invalid - throw arg error]', function() {
+        describe('[invalid - throw arg error]', function () {
             const message = 'something went wrong';
 
             tester.testError(_getErrorInputs(message), ArgError, message);
         });
 
-        describe('[valid inputs - return true]', function() {
+        describe('[valid inputs - return true]', function () {
             tester.testTrueResponse(_getValidInputs());
         });
     });
 
-    describe('checkFunction()', function() {
+    describe('checkFunction()', function () {
         interface IFunctionCheckInput extends ITesterInput {}
 
         function _getErrorInputs(
@@ -496,6 +506,7 @@ describe('argValidator', function () {
             error: string | Error | undefined = undefined,
         ): IFunctionCheckInput[] {
             return [function foo() {}, () => undefined].map((arg) => ({
+                /* eslint-disable-next-line tsel/no-explicit-any */
                 arg: arg as any,
                 error,
             }));
@@ -504,33 +515,34 @@ describe('argValidator', function () {
         const tester = new Tester<IFunctionCheckInput>(
             (input: IFunctionCheckInput): boolean => {
                 const { arg, error } = input;
+                /* eslint-disable-next-line tsel/no-explicit-any */
                 return _argValidator.checkFunction(arg as any, error);
             },
         );
 
-        describe('[invalid inputs - return false]', function() {
+        describe('[invalid inputs - return false]', function () {
             tester.testFalseResponse(_getErrorInputs());
         });
 
-        describe('[invalid - throw custom error]', function() {
+        describe('[invalid - throw custom error]', function () {
             const message = 'something went wrong';
             const error = new CustomError(message);
 
             tester.testError(_getErrorInputs(error), CustomError, message);
         });
 
-        describe('[invalid - throw arg error]', function() {
+        describe('[invalid - throw arg error]', function () {
             const message = 'something went wrong';
 
             tester.testError(_getErrorInputs(message), ArgError, message);
         });
 
-        describe('[valid inputs - return true]', function() {
+        describe('[valid inputs - return true]', function () {
             tester.testTrueResponse(_getValidInputs());
         });
     });
 
-    describe('checkInstance()', function() {
+    describe('checkInstance()', function () {
         interface IInstanceCheckInput extends ITesterInput {
             type: unknown;
         }
@@ -551,6 +563,7 @@ describe('argValidator', function () {
             error: string | Error | undefined = undefined,
         ): IInstanceCheckInput[] {
             return [new Foo()].map((arg) => ({
+                /* eslint-disable-next-line tsel/no-explicit-any */
                 arg: arg as any,
                 type: Foo,
                 error,
@@ -560,28 +573,29 @@ describe('argValidator', function () {
         const tester = new Tester<IInstanceCheckInput>(
             (input: IInstanceCheckInput): boolean => {
                 const { arg, type, error } = input;
+                /* eslint-disable-next-line tsel/no-explicit-any */
                 return _argValidator.checkInstance(arg as any, type, error);
             },
         );
 
-        describe('[invalid inputs - return false]', function() {
+        describe('[invalid inputs - return false]', function () {
             tester.testFalseResponse(_getErrorInputs());
         });
 
-        describe('[invalid - throw custom error]', function() {
+        describe('[invalid - throw custom error]', function () {
             const message = 'something went wrong';
             const error = new CustomError(message);
 
             tester.testError(_getErrorInputs(error), CustomError, message);
         });
 
-        describe('[invalid - throw arg error]', function() {
+        describe('[invalid - throw arg error]', function () {
             const message = 'something went wrong';
 
             tester.testError(_getErrorInputs(message), ArgError, message);
         });
 
-        describe('[valid inputs - return true]', function() {
+        describe('[valid inputs - return true]', function () {
             tester.testTrueResponse(_getValidInputs());
         });
     });

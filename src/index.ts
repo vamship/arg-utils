@@ -1,2 +1,2 @@
-export * as schemaHelper from './schema-helper';
-export * as argValidator from './arg-validator';
+export * as schemaHelper from './schema-helper.js';
+export * as argValidator from './arg-validator.js';

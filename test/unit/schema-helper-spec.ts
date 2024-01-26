@@ -16,28 +16,33 @@ import {
 } from '@vamship/test-utils';
 import { ArgError, SchemaError } from '@vamship/error-types';
 
-type AnyInput = _testValues.AnyInput;
-
 describe('schemaHelper', function () {
     type SchemaError = {
         instancePath?: string;
         message: string;
     };
+
     type AjvResult = {
         isValid: boolean;
         errors: Array<SchemaError> | undefined;
     };
+
     type SchemaChecker = (
+        /* eslint-disable-next-line tsel/no-explicit-any */
         input: any,
         throwError?: boolean,
     ) => boolean & { errors?: SchemaError[] };
+
+    /* eslint-disable-next-line tsel/no-explicit-any */
     type MockSchemaChecker = SinonStub<any[], boolean> & {
         errors?: SchemaError[];
     };
 
     type TargetModule = {
+        /* eslint-disable-next-line tsel/no-explicit-any */
         createSchemaChecker: (schema: any, message?: string) => SchemaChecker;
     };
+
     type ImportResult = {
         testTarget: TargetModule;
         ajvMock: ObjectMock<Ajv>;
@@ -111,8 +116,8 @@ describe('schemaHelper', function () {
                     testTarget: { createSchemaChecker },
                 } = await _import();
 
-                const inputs = _testValues.allButObject();
                 const error = 'Invalid schema specified (arg #1)';
+                /* eslint-disable-next-line tsel/no-explicit-any */
                 const wrapper = () => createSchemaChecker(schema as any);
                 expect(wrapper).to.throw(ArgError, error);
             });
@@ -149,7 +154,7 @@ describe('schemaHelper', function () {
             );
         });
 
-        describe.only('[schema validator behavior]', async function () {
+        describe('[schema validator behavior]', async function () {
             type ValidatorResult = {
                 validator: SchemaChecker;
                 ajvResult: AjvResult;
@@ -174,8 +179,7 @@ describe('schemaHelper', function () {
             }
 
             it('should validate the input object against the previously compiled schema', async function () {
-                const { validator, validatorMock, ajvResult } =
-                    await _createValidator();
+                const { validator, validatorMock } = await _createValidator();
 
                 const target = {};
 
@@ -189,8 +193,7 @@ describe('schemaHelper', function () {
             });
 
             it('should return true if schema validation is successful', async function () {
-                const { validator, validatorMock, ajvResult } =
-                    await _createValidator();
+                const { validator, ajvResult } = await _createValidator();
                 ajvResult.isValid = true;
 
                 const ret = validator({});
@@ -198,8 +201,7 @@ describe('schemaHelper', function () {
             });
 
             it('should return false if schema validation fails', async function () {
-                const { validator, validatorMock, ajvResult } =
-                    await _createValidator();
+                const { validator, ajvResult } = await _createValidator();
                 ajvResult.isValid = false;
 
                 const ret = validator({});
@@ -207,8 +209,7 @@ describe('schemaHelper', function () {
             });
 
             it('should throw an error if validation fails, and throwError=true', async function () {
-                const { validator, validatorMock, ajvResult } =
-                    await _createValidator();
+                const { validator, ajvResult } = await _createValidator();
                 const schemaErr = {
                     instancePath: 'foo',
                     message: 'bar',
@@ -224,16 +225,14 @@ describe('schemaHelper', function () {
             });
 
             it('should return true if schema validation is successful and throwError=true', async function () {
-                const { validator, validatorMock, ajvResult } =
-                    await _createValidator();
+                const { validator, ajvResult } = await _createValidator();
                 ajvResult.isValid = true;
                 const ret = validator({}, true);
                 expect(ret).to.be.true;
             });
 
             it('should default the schema error instancePath to "root" if one was not returned', async function () {
-                const { validator, validatorMock, ajvResult } =
-                    await _createValidator();
+                const { validator, ajvResult } = await _createValidator();
                 const schemaErr = {
                     message: 'bar',
                 };
@@ -247,8 +246,7 @@ describe('schemaHelper', function () {
             });
 
             it('should replace "/" with "." in the instancePath', async function () {
-                const { validator, validatorMock, ajvResult } =
-                    await _createValidator();
+                const { validator, ajvResult } = await _createValidator();
                 const schemaErr = {
                     instancePath: 'foo/bar/baz',
                     message: 'bar',
@@ -264,8 +262,9 @@ describe('schemaHelper', function () {
 
             it('should use the custom error message if one was specified during compilation', async function () {
                 const customMessage = 'Something went wrong';
-                const { validator, validatorMock, ajvResult } =
-                    await _createValidator(customMessage);
+                const { validator, ajvResult } = await _createValidator(
+                    customMessage,
+                );
                 const schemaErr = {
                     instancePath: 'foo',
                     message: 'bar',
