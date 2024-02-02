@@ -132,7 +132,7 @@ export function checkObject(
  * @typeparam T The type of the array elements.
  */
 export function checkArray<T>(
-    arg: Array<T>,
+    arg: Array<T> | undefined,
     error: string | Error | undefined = undefined,
 ): boolean {
     const isOk = arg instanceof Array;
