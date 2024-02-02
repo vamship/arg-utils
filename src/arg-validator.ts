@@ -150,7 +150,7 @@ export function checkArray<T>(
  *         is not undefined.
  */
 export function checkBoolean(
-    arg: boolean,
+    arg: boolean | undefined,
     error: string | Error | undefined = undefined,
 ): boolean {
     const isOk = typeof arg === 'boolean';
