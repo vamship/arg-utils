@@ -16,7 +16,7 @@ import { ArgError, SchemaError } from '@vamship/error-types';
  */
 export type SchemaChecker<T> = (
     target: T,
-    throwError: boolean | undefined,
+    throwError?: boolean | undefined,
 ) => boolean;
 
 /**
@@ -36,7 +36,7 @@ export type SchemaChecker<T> = (
  */
 export function createSchemaChecker<T>(
     schema: JSONSchemaType<T>,
-    errorMessage: string | undefined,
+    errorMessage?: string | undefined,
 ): SchemaChecker<T> {
     if (!schema || schema instanceof Array || typeof schema !== 'object') {
         throw new ArgError('Invalid schema specified (arg #1)');
@@ -47,7 +47,7 @@ export function createSchemaChecker<T>(
 
     const validator = new Ajv().compile(schema);
 
-    return (target: T, throwError: boolean | undefined): boolean => {
+    return (target: T, throwError?: boolean | undefined): boolean => {
         if (!validator(target)) {
             if (throwError) {
                 if (!validator.errors) {
