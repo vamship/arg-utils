@@ -262,9 +262,8 @@ describe('schemaHelper', function () {
 
             it('should use the custom error message if one was specified during compilation', async function () {
                 const customMessage = 'Something went wrong';
-                const { validator, ajvResult } = await _createValidator(
-                    customMessage,
-                );
+                const { validator, ajvResult } =
+                    await _createValidator(customMessage);
                 const schemaErr = {
                     instancePath: 'foo',
                     message: 'bar',
@@ -280,9 +279,8 @@ describe('schemaHelper', function () {
 
             it('should throw a schema error with just the error message if the validation fails but does not return any errors', async function () {
                 const customMessage = 'Something went wrong';
-                const { validator, ajvResult } = await _createValidator(
-                    customMessage,
-                );
+                const { validator, ajvResult } =
+                    await _createValidator(customMessage);
                 const errMessage = `[SchemaError] ${customMessage}`;
 
                 ajvResult.isValid = false;
