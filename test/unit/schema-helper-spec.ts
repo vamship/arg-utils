@@ -142,12 +142,15 @@ describe('schemaHelper', function () {
 
             const compileMethod = ajvMock.mocks.compile;
 
+            //eslint-disable-next-line tsel/no-unused-expressions
             expect(ajvMock.ctor).to.not.have.been.called;
+            //eslint-disable-next-line tsel/no-unused-expressions
             expect(compileMethod.stub).to.not.have.been.called;
 
             createSchemaChecker(schema);
 
             expect(ajvMock.ctor).to.have.been.calledOnceWithExactly();
+            //eslint-disable-next-line tsel/no-unused-expressions
             expect(ajvMock.ctor).to.have.been.calledWithNew;
             expect(compileMethod.stub).to.have.been.calledOnceWithExactly(
                 schema,
@@ -183,6 +186,7 @@ describe('schemaHelper', function () {
 
                 const target = {};
 
+                //eslint-disable-next-line tsel/no-unused-expressions
                 expect(validatorMock).to.not.have.been.called;
 
                 validator(target);
@@ -197,6 +201,7 @@ describe('schemaHelper', function () {
                 ajvResult.isValid = true;
 
                 const ret = validator({});
+                //eslint-disable-next-line tsel/no-unused-expressions
                 expect(ret).to.be.true;
             });
 
@@ -205,6 +210,7 @@ describe('schemaHelper', function () {
                 ajvResult.isValid = false;
 
                 const ret = validator({});
+                //eslint-disable-next-line tsel/no-unused-expressions
                 expect(ret).to.be.false;
             });
 
@@ -228,6 +234,7 @@ describe('schemaHelper', function () {
                 const { validator, ajvResult } = await _createValidator();
                 ajvResult.isValid = true;
                 const ret = validator({}, true);
+                //eslint-disable-next-line tsel/no-unused-expressions
                 expect(ret).to.be.true;
             });
 

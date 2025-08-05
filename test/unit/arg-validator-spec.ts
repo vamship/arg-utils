@@ -42,6 +42,7 @@ describe('argValidator', function () {
                 const { arg } = input;
                 const runTest = this._runTest;
                 it(`should return false if the input is not valid (value=${arg})`, async function () {
+                    //eslint-disable-next-line tsel/no-unused-expressions
                     expect(runTest(input)).to.be.false;
                 });
             });
@@ -63,6 +64,7 @@ describe('argValidator', function () {
                 const { arg } = input;
                 const runTest = this._runTest;
                 it(`should return true if the input is valid (value=${arg})`, async function () {
+                    //eslint-disable-next-line tsel/no-unused-expressions
                     expect(runTest(input)).to.be.true;
                 });
             });
@@ -345,6 +347,7 @@ describe('argValidator', function () {
     });
 
     describe('checkObject()', function () {
+        //eslint-disable-next-line tsel/no-empty-object-type
         interface IObjectCheckInput extends ITesterInput {}
 
         function _getErrorInputs(
@@ -395,6 +398,7 @@ describe('argValidator', function () {
     });
 
     describe('checkArray()', function () {
+        //eslint-disable-next-line tsel/no-empty-object-type
         interface IArrayCheckInput extends ITesterInput {}
 
         function _getErrorInputs(
@@ -443,6 +447,7 @@ describe('argValidator', function () {
     });
 
     describe('checkBoolean()', function () {
+        //eslint-disable-next-line tsel/no-empty-object-type
         interface IBooleanCheckInput extends ITesterInput {}
 
         function _getErrorInputs(
@@ -491,6 +496,7 @@ describe('argValidator', function () {
     });
 
     describe('checkFunction()', function () {
+        //eslint-disable-next-line tsel/no-empty-object-type
         interface IFunctionCheckInput extends ITesterInput {}
 
         function _getErrorInputs(
